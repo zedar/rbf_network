@@ -9,7 +9,7 @@ public class RadialNeuron extends Neuron {
   }
 
   @Override
-  public double cakculateOutput() {
+  public double calculateOutput() {
     double s = 0.0;
     if (in.size() != mu.length) {
       throw new RuntimeException("Wrong number of dimensions");

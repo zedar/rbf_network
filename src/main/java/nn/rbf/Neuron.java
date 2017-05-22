@@ -18,7 +18,7 @@ public abstract class Neuron {
     this.bias = new Connection(null, null, biasWeight);
   }
 
-  public abstract double cakculateOutput();
+  public abstract double calculateOutput();
 
   public double getOutput() {
     return output;

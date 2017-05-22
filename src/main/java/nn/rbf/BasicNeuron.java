@@ -18,7 +18,7 @@ public class BasicNeuron extends Neuron {
   }
 
   @Override
-  public double cakculateOutput() {
+  public double calculateOutput() {
     double s = 0.0;
     for (Connection c : in) {
       s += c.getWeight() * c.getIn().getOutput();
