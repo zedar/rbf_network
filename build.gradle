@@ -1,0 +1,44 @@
+//---------------------------------------------------------------------
+// GRADLE - plugins
+//---------------------------------------------------------------------
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'idea'
+
+//---------------------------------------------------------------------
+// IDEA - java configuration settings
+//---------------------------------------------------------------------
+idea {
+  project {
+    jdkName='1.8'
+    languageLevel='1.8'
+  }
+}
+
+if (!JavaVersion.current().java8Compatible) {
+  throw new IllegalStateException("Must be built at least with Java 1.8")
+}
+
+sourceCompatibility=1.8
+targetCompatibility=1.8
+
+//---------------------------------------------------------------------
+// DEPENDENCIES - repositories, etc.
+//---------------------------------------------------------------------
+repositories {
+  mavenLocal()
+  maven { url 'https://s30test1dev1.pkobp.pl/nexus/content/groups/public'  }
+  jcenter()
+}
+
+dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.7'
+
+    testCompile 'junit:junit:4.12'
+}
+
+task wrapper(type: Wrapper) {
+  gradleVersion='3.5'
+}
+
+mainClassName='nn.rbf.Main'
