@@ -12,9 +12,9 @@ public class BasicNeuron extends Neuron {
     this.activationFunc = activationFunc;
   }
 
-  public BasicNeuron(final ACTIVATION_FUNC activationFunc, final double biasOutput, final double biasWeight) {
-    super(biasOutput, biasWeight);
+  public BasicNeuron(final ACTIVATION_FUNC activationFunc, final double output) {
     this.activationFunc = activationFunc;
+    setOutput(output);
   }
 
   @Override
@@ -23,12 +23,25 @@ public class BasicNeuron extends Neuron {
     for (Connection c : in) {
       s += c.getWeight() * c.getIn().getOutput();
     }
-    if (bias != null) {
-      s += bias.getWeight() * biasOutput;
-    }
 
     output = activate(s);
     return output;
+  }
+
+  public void applyBackpropagation(double expectedOutput, double learningRate) {
+    for (Connection c : in) {
+      double ai = c.getIn().getOutput();
+      switch (activationFunc) {
+        case SIGMOID: {
+          double partialDerivative = -(expectedOutput-output) * output/(1.0 - output) * ai;
+          c.setWeight(c.getWeight() - learningRate * partialDerivative);
+        }
+        case LINEAR: {
+          double partialDerivative = -(expectedOutput-output) * 1.0 * ai;
+          c.setWeight(c.getWeight() - learningRate * partialDerivative);
+        }
+      }
+    }
   }
 
   private double activate(double val) {
