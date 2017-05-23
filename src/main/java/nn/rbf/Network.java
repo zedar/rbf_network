@@ -45,8 +45,7 @@ public class Network {
 
     initHiddenLayer();
 
-    double variance = calcMaxDistance(hidden) * MAX_DISTANCE_PROPORTION;
-    double beta = 1.0/(2.0*variance);
+
 
     for (int i=0, count=0; i < maxIterations; i++) {
       double error = 0.0;
@@ -55,6 +54,9 @@ public class Network {
         for (int k=0; k < in.size(); k++) {
           in.get(k).setOutput(invalues[k]);
         }
+
+        double variance = calcMaxDistance(hidden) * MAX_DISTANCE_PROPORTION;
+        double beta = 1.0/(2.0*Math.pow(variance, 2));
 
         for (RadialNeuron rn : hidden) {
           rn.setBeta(beta);
@@ -71,7 +73,15 @@ public class Network {
 
         // back propagation
         for (int k=0; k < out.size(); k++) {
-          out.get(k).applyBackpropagation(trainout[j][k], learningRate);
+          BasicNeuron bn = out.get(k);
+
+          for (int l=0; l < hidden.size(); l++) {
+            RadialNeuron rn = hidden.get(l);
+            Connection hidden2bn = bn.getConnection(l);
+            rn.applyBackPropagation(bn.getOutput(), trainout[j][k], hidden2bn.getWeight(), learningRate);
+          }
+
+          bn.applyBackpropagation(trainout[j][k], learningRate);
         }
       }
 

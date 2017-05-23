@@ -6,7 +6,6 @@ import java.util.Random;
 
 public abstract class Neuron {
   protected double output = 0.0;
-  protected double biasOutput = -1.0;
   protected final List<Connection> in = new ArrayList<>();
 
   public Neuron() {
@@ -22,18 +21,14 @@ public abstract class Neuron {
     this.output = output;
   }
 
-  public double getBiasOutput() {
-    return biasOutput;
-  }
-
-  public void setBiasOutput(double biasOutput) {
-    this.biasOutput = biasOutput;
-  }
-
   public void addInConnections(List<? extends Neuron> neurons) {
     for (Neuron n : neurons) {
       in.add(new Connection(n, this, getRandom()));
     }
+  }
+
+  public Connection getConnection(int idx) {
+    return in.get(idx);
   }
 
   public void addBiasConnection(Neuron bias) {

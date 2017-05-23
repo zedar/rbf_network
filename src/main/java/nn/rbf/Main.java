@@ -15,8 +15,8 @@ public class Main {
     DataSetUtils.normalizeInRangeZeroOne(trainIn);
     DataSetUtils.normalizeInRangeZeroOne(trainOut);
 
-    Network network = new Network(1, 10, 1, trainIn, trainOut, null, null);
+    Network network = new Network(1, 20, 1, trainIn, trainOut, null, null);
 
-    network.learn(2000, 0.8);
+    network.learn(20000, 0.07);
   }
 }

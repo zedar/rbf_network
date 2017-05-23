@@ -19,8 +19,16 @@ public class RadialNeuron extends Neuron {
       s += d * d;
     }
 
-    output = Math.exp(-beta * s);
+    output = Math.exp(-/*beta * */s / (2.0*Math.pow(0.5, 2)));
     return output;
+  }
+
+  public void applyBackPropagation(double calculatedOutput, double expectedOutput, double weight, double learningRate) {
+    double phi = output;
+    double diff = expectedOutput - calculatedOutput;
+    for (int i = 0; i < mu.length; i++) {
+      mu[i] = mu[i] + learningRate * diff * weight * phi * (in.get(i).getIn().getOutput() - mu[i])/(0.5*0.5);//(beta*beta);
+    }
   }
 
   public double[] getMu() {
