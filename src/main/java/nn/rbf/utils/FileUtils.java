@@ -2,6 +2,7 @@ package nn.rbf.utils;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class FileUtils {
@@ -38,7 +39,7 @@ public class FileUtils {
     return null;
   }
 
-  public static double[][][] loadData(String fileName, String separator, int numInputs, int numOutputs) {
+  public static double[][][] loadData(String fileName, String separator, int numInputs, int numOutputs, boolean convertOutputTo01) {
     File file = new File(fileName);
     int rows = 0;
     try{
@@ -57,8 +58,17 @@ public class FileUtils {
         for(int i = 0; i < numInputs; i++){
           in[i] = Double.valueOf(tempTable[i]);
         }
-        for (int i = tableLenght-1, j=0; i > (tableLenght-1-numOutputs); i--) {
-          out[j++] = Double.valueOf(tempTable[i]);
+        if (convertOutputTo01) {
+          int outv = Integer.valueOf(tempTable[tableLenght-1]);
+          if (outv < 0 || outv > numOutputs) {
+            throw new IllegalArgumentException("Invalid output feature value. Not inline with number of output neurons");
+          }
+          Arrays.fill(out, 0.0);
+          out[outv-1] = 1.0;
+        } else {
+          for (int i = tableLenght - 1, j = 0; i > (tableLenght - 1 - numOutputs); i--) {
+            out[j++] = Double.valueOf(tempTable[i]);
+          }
         }
         inData.add(in);
         outData.add(out);

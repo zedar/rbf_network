@@ -1,6 +1,5 @@
 package nn.rbf;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -25,13 +24,15 @@ public class Network {
   private final List<BasicNeuron> in = new ArrayList<>();
   private final List<RadialNeuron> hidden = new ArrayList<>();
   private final List<BasicNeuron> out = new ArrayList<>();
-  private final boolean printResult;
+  private final boolean plotResults;
+  private final boolean printOutput;
 
   public Network(final int neuronsin,
                  final int neuronshidden,
                  final int neuronsout,
                  final double[][] trainin, final double[][] trainout, final double[][] testin, final double[][] testout,
-                 boolean printResult) {
+                 boolean plotResults,
+                 boolean printOutput) {
     this.neuronsin = neuronsin;
     this.neuronshidden = neuronshidden;
     this.neuronsout = neuronsout;
@@ -39,7 +40,8 @@ public class Network {
     this.trainout = trainout;
     this.testin = testin;
     this.testout = testout;
-    this.printResult = printResult;
+    this.plotResults = plotResults;
+    this.printOutput = printOutput;
 
     if (neuronshidden > trainin.length) {
       throw new RuntimeException("Too many neurons in hidden layer");
@@ -51,7 +53,7 @@ public class Network {
   public void learn(final int maxIterations, double learningRate) {
 
     initHiddenLayer();
-    //if (true) return;
+
     for (int i=0, count=0; i < maxIterations; i++) {
       double error = 0.0;
       for (int j=0; j < trainin.length; j++) {
@@ -60,11 +62,7 @@ public class Network {
           in.get(k).setOutput(invalues[k]);
         }
 
-        double variance = calcMaxDistance(hidden) * MAX_DISTANCE_PROPORTION;
-        double beta = variance; //1.0/(2.0*variance);
-
         for (RadialNeuron rn : hidden) {
-          rn.setBeta(beta);
           rn.calculateOutput();
         }
 
@@ -127,7 +125,8 @@ public class Network {
       int pos = rand.nextInt(trainin.length);
       rn.setMu(trainin[pos]);
     }
-    KMeans.classify2(hidden.size(), trainin, trainout, hidden, 0.001, 50000, true);
+    //KMeans.classify(trainin, hidden, 0.001, 50000);
+    KMeans.classify2(hidden.size(), trainin, trainout, hidden, 0.001, 50000, plotResults);
   }
 
   private double calcMaxDistance(List<RadialNeuron> neurons) {
@@ -150,7 +149,7 @@ public class Network {
     PrintWriter fAccuracy = null;
 
     try {
-      if (printResult) {
+      if (plotResults) {
         fTestExpected = new PrintWriter(new FileWriter("out/plot_test_expected.txt"));
         fTestCalculated = new PrintWriter(new FileWriter("out/plot_test_calculated.txt"));
         fAccuracy = new PrintWriter(new FileWriter("out/plot_test_accuracy.txt"));
@@ -179,10 +178,22 @@ public class Network {
           correct++;
         }
 
-        if (printResult) {
+        if (plotResults) {
           fTestExpected.println("\t" + testin[i][0] + "\t" + testout[i][0]);
           fTestCalculated.println("\t" + testin[i][0] + "\t" + out.get(0).getOutput());
           fAccuracy.println("\t" + i + "\t" + error);
+        }
+
+        if (printOutput) {
+          System.out.printf("TEST [%d], EXPECTED: ", i);
+          for (int j = 0; j < testout[i].length; j++) {
+            System.out.printf("%f ", testout[i][j]);
+          }
+          System.out.printf(", CALCULATED: ");
+          for (int j = 0; j < out.size(); j++) {
+            System.out.printf("%f ", out.get(j).getOutput());
+          }
+          System.out.printf("\n");
         }
       }
       double accuracy = ((double) correct / (double) testout.length) * 100;

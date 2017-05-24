@@ -119,11 +119,11 @@ public class KMeans {
         System.out.printf("K-MEANS EPOCH: %d, DISTANCE: %f\n", i, dist);
       }
     }
-    // Update radial neurons
-    for (int i = 0; i < centers.size(); i++) {
-      Cluster c = clusters.get(i);
-      centers.get(i).setMu(c.mu);
-    }
+    // Update radial neurons - thier centers
+    updateCenters(centers, clusters, trainin[0].length);
+
+    // update radial neurons -their weights (beta)
+    updateCentersSpread(3, centers);
   }
 
   public static void classify2(int numOfClasters, final double[][] trainin, final double[][] trainout, final List<RadialNeuron> centers, final double maxError, final int maxIterations, boolean print) {
