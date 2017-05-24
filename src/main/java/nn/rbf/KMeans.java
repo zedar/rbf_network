@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class KMeans {
   private static class Cluster {
@@ -195,15 +196,12 @@ public class KMeans {
         }
       }
 
-      // Update radial neurons
-      for (int i = 0; i < centers.size(); i++) {
-        Cluster c = clusters.get(i);
-        double[] mu = new double[trainin[0].length];
-        for (int j = 0; j < mu.length; j++) {
-          mu[j] = c.mu[j];
-        }
-        centers.get(i).setMu(mu);
-      }
+      // Update radial neurons - thier centers
+      updateCenters(centers, clusters, trainin[0].length);
+
+      // update radial neurons -their weights (beta)
+      updateCentersSpread(3, centers);
+
     } catch (Exception ex) {
       ex.printStackTrace();
     } finally {
@@ -216,6 +214,54 @@ public class KMeans {
       if (fClustersTrain != null) {
         fClustersTrain.close();
       }
+    }
+  }
+
+  private static void updateCenters(final List<RadialNeuron> centers, final List<Cluster> clusters, final int dim) {
+    for (int i = 0; i < centers.size(); i++) {
+      Cluster c = clusters.get(i);
+      double[] mu = new double[dim];
+      for (int j = 0; j < mu.length; j++) {
+        mu[j] = c.mu[j];
+      }
+      centers.get(i).setMu(mu);
+    }
+  }
+
+  private static class CenterSpread {
+    int clusterFrom;
+    int clusterTo;
+    double distance;
+    CenterSpread(final int clusterFrom, final int clusterTo, final double distance) {
+      this.clusterFrom = clusterFrom;
+      this.clusterTo = clusterTo;
+      this.distance = distance;
+    }
+  }
+
+  private static void updateCentersSpread(final int neighbour, List<RadialNeuron> centers) {
+    for (int i = 0; i < centers.size(); i++) {
+      List<CenterSpread> centerSpreads = new ArrayList<>();
+      for (int j = 0; j < centers.size(); j++) {
+        if (i == j) continue;
+        double dist = EuclideanDistance.calc(centers.get(i).getMu(), centers.get(j).getMu());
+        centerSpreads.add(new CenterSpread(i, j, dist));
+      }
+      centerSpreads = centerSpreads.stream()
+        .sorted((c1, c2) -> {
+          if (c1.distance > c2.distance) return 1;
+          else if (c1.distance < c2.distance) return -1;
+          else return 0;
+        }).collect(Collectors.toList());
+
+      double r = 0.0;
+      double count = 0;
+      for (int j = 0; j < neighbour || j < centerSpreads.size(); j++, count++) {
+        r += Math.pow(centerSpreads.get(j).distance, 2);
+      }
+      r = Math.sqrt(r/count);
+      System.out.printf("CENTER: %d, X: %f, RADIUS: %f\n", i,centers.get(i).getMu()[0], r);
+      centers.get(i).setRadius(r);
     }
   }
 

@@ -3,6 +3,7 @@ package nn.rbf;
 public class RadialNeuron extends Neuron {
   private double[] mu;
   private double beta;
+  private double radius;
 
   public RadialNeuron(final double beta) {
     this.beta = beta;
@@ -20,7 +21,8 @@ public class RadialNeuron extends Neuron {
       s += d * d;
     }
 
-    output = Math.exp(-beta * s /*/ (2.0*beta*beta)*/);
+    //output = Math.exp(-beta * s /*/ (2.0*beta*beta)*/);
+    output = Math.exp(-s / (radius*radius));
     return output;
   }
 
@@ -46,5 +48,13 @@ public class RadialNeuron extends Neuron {
 
   public void setBeta(double beta) {
     this.beta = beta;
+  }
+
+  public double getRadius() {
+    return radius;
+  }
+
+  public void setRadius(double radius) {
+    this.radius = radius;
   }
 }
