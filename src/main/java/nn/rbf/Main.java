@@ -29,6 +29,6 @@ public class Main {
 
     Network network = new Network(1, 24, 1, trainIn, trainOut, testIn, testOut, true);
 
-    network.learn(100000, 0.05);
+    network.learn(600000, 0.05);
   }
 }

@@ -51,7 +51,7 @@ public class Network {
   public void learn(final int maxIterations, double learningRate) {
 
     initHiddenLayer();
-
+    //if (true) return;
     for (int i=0, count=0; i < maxIterations; i++) {
       double error = 0.0;
       for (int j=0; j < trainin.length; j++) {
@@ -127,6 +127,7 @@ public class Network {
       int pos = rand.nextInt(trainin.length);
       rn.setMu(trainin[pos]);
     }
+    KMeans.classify2(hidden.size(), trainin, trainout, hidden, 0.001, 50000, true);
   }
 
   private double calcMaxDistance(List<RadialNeuron> neurons) {
