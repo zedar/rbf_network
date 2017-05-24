@@ -6,6 +6,7 @@ public class RadialNeuron extends Neuron {
 
   public RadialNeuron(final double beta) {
     this.beta = beta;
+    this.beta = 5.0;
   }
 
   @Override
@@ -19,7 +20,7 @@ public class RadialNeuron extends Neuron {
       s += d * d;
     }
 
-    output = Math.exp(-/*beta * */s / (2.0*Math.pow(0.5, 2)));
+    output = Math.exp(-beta * s /*/ (2.0*beta*beta)*/);
     return output;
   }
 
@@ -27,7 +28,7 @@ public class RadialNeuron extends Neuron {
     double phi = output;
     double diff = expectedOutput - calculatedOutput;
     for (int i = 0; i < mu.length; i++) {
-      mu[i] = mu[i] + learningRate * diff * weight * phi * (in.get(i).getIn().getOutput() - mu[i])/(0.5*0.5);//(beta*beta);
+      mu[i] = mu[i] + learningRate * diff * weight * phi * (in.get(i).getIn().getOutput() - mu[i])/(beta*beta);//(beta*beta);
     }
   }
 

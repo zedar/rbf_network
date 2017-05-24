@@ -1,5 +1,8 @@
 package nn.rbf;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -8,6 +11,7 @@ public class Network {
 
   private static final double BETA = 2.0;
   private static final double MAX_DISTANCE_PROPORTION = 1.0;
+  private static final double MAX_ERROR = 0.01;
 
   private final Random rand = new Random();
 
@@ -21,11 +25,13 @@ public class Network {
   private final List<BasicNeuron> in = new ArrayList<>();
   private final List<RadialNeuron> hidden = new ArrayList<>();
   private final List<BasicNeuron> out = new ArrayList<>();
+  private final boolean printResult;
 
   public Network(final int neuronsin,
                  final int neuronshidden,
                  final int neuronsout,
-                 final double[][] trainin, final double[][] trainout, final double[][] testin, final double[][] testout) {
+                 final double[][] trainin, final double[][] trainout, final double[][] testin, final double[][] testout,
+                 boolean printResult) {
     this.neuronsin = neuronsin;
     this.neuronshidden = neuronshidden;
     this.neuronsout = neuronsout;
@@ -33,6 +39,7 @@ public class Network {
     this.trainout = trainout;
     this.testin = testin;
     this.testout = testout;
+    this.printResult = printResult;
 
     if (neuronshidden > trainin.length) {
       throw new RuntimeException("Too many neurons in hidden layer");
@@ -45,8 +52,6 @@ public class Network {
 
     initHiddenLayer();
 
-
-
     for (int i=0, count=0; i < maxIterations; i++) {
       double error = 0.0;
       for (int j=0; j < trainin.length; j++) {
@@ -56,7 +61,7 @@ public class Network {
         }
 
         double variance = calcMaxDistance(hidden) * MAX_DISTANCE_PROPORTION;
-        double beta = 1.0/(2.0*Math.pow(variance, 2));
+        double beta = variance; //1.0/(2.0*variance);
 
         for (RadialNeuron rn : hidden) {
           rn.setBeta(beta);
@@ -75,20 +80,24 @@ public class Network {
         for (int k=0; k < out.size(); k++) {
           BasicNeuron bn = out.get(k);
 
-          for (int l=0; l < hidden.size(); l++) {
-            RadialNeuron rn = hidden.get(l);
-            Connection hidden2bn = bn.getConnection(l);
-            rn.applyBackPropagation(bn.getOutput(), trainout[j][k], hidden2bn.getWeight(), learningRate);
-          }
+//          for (int l=0; l < hidden.size(); l++) {
+//            RadialNeuron rn = hidden.get(l);
+//            Connection hidden2bn = bn.getConnection(l);
+//            rn.applyBackPropagation(bn.getOutput(), trainout[j][k], hidden2bn.getWeight(), learningRate);
+//          }
 
           bn.applyBackpropagation(trainout[j][k], learningRate);
         }
       }
 
-      if (count % 100 == 0) {
+      if (count % 1000 == 0) {
         System.out.printf("EPOCH: %d, error: %f\n", i, error);
       }
       count++;
+    }
+
+    if (testin != null && testout != null) {
+      test();
     }
 
   }
@@ -132,5 +141,65 @@ public class Network {
       }
     }
     return maxDistance;
+  }
+
+  private double test() {
+    PrintWriter fTestExpected = null;
+    PrintWriter fTestCalculated = null;
+    PrintWriter fAccuracy = null;
+
+    try {
+      if (printResult) {
+        fTestExpected = new PrintWriter(new FileWriter("out/plot_test_expected.txt"));
+        fTestCalculated = new PrintWriter(new FileWriter("out/plot_test_calculated.txt"));
+        fAccuracy = new PrintWriter(new FileWriter("out/plot_test_accuracy.txt"));
+      }
+
+      int correct = 0;
+      for (int i = 0; i < testin.length; i++) {
+        double[] invalues = testin[i];
+        for (int j = 0; j < in.size(); j++) {
+          in.get(j).setOutput(invalues[j]);
+        }
+
+        for (RadialNeuron rn : hidden) {
+          rn.calculateOutput();
+        }
+
+        for (BasicNeuron bn : out) {
+          bn.calculateOutput();
+        }
+
+        double error = 0.0;
+        for (int j = 0; j < out.size(); j++) {
+          error += Math.pow(out.get(j).getOutput() - testout[i][j], 2);
+        }
+        if (error >= -MAX_ERROR && error <= MAX_ERROR) {
+          correct++;
+        }
+
+        if (printResult) {
+          fTestExpected.println("\t" + testin[i][0] + "\t" + testout[i][0]);
+          fTestCalculated.println("\t" + testin[i][0] + "\t" + out.get(0).getOutput());
+          fAccuracy.println("\t" + i + "\t" + error);
+        }
+      }
+      double accuracy = ((double) correct / (double) testout.length) * 100;
+      System.out.printf("CORRECTLY CLASSIFIED: %d ACCURACY: %f \n", correct, accuracy);
+      return accuracy;
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return 0.0;
+    } finally {
+      if (fTestExpected != null) {
+        fTestExpected.close();
+      }
+      if (fTestCalculated != null) {
+        fTestCalculated.close();
+      }
+      if (fAccuracy != null) {
+        fAccuracy.close();
+      }
+    }
   }
 }
