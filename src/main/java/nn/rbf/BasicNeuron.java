@@ -33,7 +33,7 @@ public class BasicNeuron extends Neuron {
       double ai = c.getIn().getOutput();
       switch (activationFunc) {
         case SIGMOID: {
-          double partialDerivative = -(expectedOutput-output) * output/(1.0 - output) * ai;
+          double partialDerivative = -(expectedOutput-output) * output*(1.0 - output) * ai;
           c.setWeight(c.getWeight() - learningRate * partialDerivative);
         }
         case LINEAR: {

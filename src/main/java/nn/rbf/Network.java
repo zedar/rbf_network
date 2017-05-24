@@ -111,9 +111,9 @@ public class Network {
       hidden.add(rn);
     }
 
-    BasicNeuron bias = new BasicNeuron(BasicNeuron.ACTIVATION_FUNC.LINEAR, 1.0);
+    BasicNeuron bias = new BasicNeuron(BasicNeuron.ACTIVATION_FUNC.SIGMOID, 1.0);
     for (int i=0; i < neuronsout; i++) {
-      BasicNeuron bn = new BasicNeuron(BasicNeuron.ACTIVATION_FUNC.LINEAR);
+      BasicNeuron bn = new BasicNeuron(BasicNeuron.ACTIVATION_FUNC.SIGMOID);
       bn.addInConnections(hidden);
       bn.addBiasConnection(bias);
       out.add(bn);
