@@ -247,6 +247,9 @@ public class KMeans {
         double dist = EuclideanDistance.calc(centers.get(i).getMu(), centers.get(j).getMu());
         centerSpreads.add(new CenterSpread(i, j, dist));
       }
+      if (centerSpreads.size() == 0) {
+        continue;
+      }
       centerSpreads = centerSpreads.stream()
         .sorted((c1, c2) -> {
           if (c1.distance > c2.distance) return 1;
@@ -256,7 +259,7 @@ public class KMeans {
 
       double r = 0.0;
       double count = 0;
-      for (int j = 0; j < neighbour || j < centerSpreads.size(); j++, count++) {
+      for (int j = 0; j < neighbour && j < centerSpreads.size(); j++, count++) {
         r += Math.pow(centerSpreads.get(j).distance, 2);
       }
       r = Math.sqrt(r/count);
