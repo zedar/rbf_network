@@ -3,7 +3,7 @@ package nn.rbf;
 public class RadialNeuron extends Neuron {
   private double[] mu;
   private double beta;
-  private double radius;
+  private double radius=0.05;
 
   public RadialNeuron(final double beta) {
     this.beta = beta;

@@ -38,8 +38,8 @@ public class Main {
     }
 
     // Approximation
-    Network network = new Network(1, 3, 1, trainIn, trainOut, testIn, testOut, true, false);
-    network.learn(600000, 0.05);
+    Network network = new Network(1, 4, 1, trainIn, trainOut, testIn, testOut, true, false);
+    network.learn(10000, 0.05);
 
     // Classification 1
     //Network network = new Network(3, 24, 1, trainIn, trainOut, testIn, testOut, false, true);
